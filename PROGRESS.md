@@ -4,17 +4,16 @@ Status log for Build Day, App 3. See `PRD.md` (what/why) and `spec/plan.md` (how
 
 ## Implementation Order (from spec/plan.md)
 1. [x] Scaffold Next.js (App Router) + Tailwind — builds clean
-2. [x] Env wiring — `.env.example` has `ANTHROPIC_API_KEY` + Supabase keys; `.env` gitignored
-3. [ ] **Supabase migration** — run `briefs` schema (table + index + RLS + service_role policy) via Supabase MCP ⛔ needs Supabase project
-4. [x] `lib/anthropic.ts` — client + `buildPrompt()` written
-       [ ] **CHECKPOINT: approve 2 sample briefs before wiring the rest** ⛔ needs ANTHROPIC_API_KEY
+2. [x] Env wiring — `.env` has real Anthropic + Supabase keys; `.env` gitignored
+3. [x] **Supabase migration** — `briefs` schema run in SQL Editor (table + index + RLS + service_role policy); connection verified
+4. [x] `lib/anthropic.ts` — client + `buildPrompt()`; **2 sample briefs APPROVED** (prompt locked)
 5. [x] `lib/supabase.ts` — service-role client (server-side only)
 6. [x] `lib/ratelimit.ts` — in-memory 10/email/hour
 7. [x] `generateBrief` server action — validate → rate-limit → call → persist → return
 8. [x] `<MeetingForm>` — five fields, client-side caps
 9. [x] `<BriefRenderer>` — react-markdown + Tailwind `prose`, long-response scroll
 10. [x] `/briefs` page — reads `?email=`, reverse-chron
-11. [ ] End-to-end pass ⛔ needs keys + Supabase
+11. [x] **End-to-end pass** — browser submit → brief rendered (4 sections) → row saved → /briefs shows it ✅
 
 ## Built so far (key-independent — verified by `npm run build`)
 - `lib/types.ts` · `lib/anthropic.ts` · `lib/validate.ts` · `lib/ratelimit.ts` · `lib/supabase.ts`
@@ -22,17 +21,16 @@ Status log for Build Day, App 3. See `PRD.md` (what/why) and `spec/plan.md` (how
 - `components/MeetingForm.tsx` · `components/BriefRenderer.tsx`
 - Model: `claude-sonnet-4-6`, `max_tokens` 800 (Sonnet, not Opus — cost/latency)
 
-## Blocked on (user / external)
-- **ANTHROPIC_API_KEY** — console.anthropic.com → API Keys → Create. Needed for the
-  step-4 sample-brief approval checkpoint and any end-to-end run.
-- **Supabase project** — create project, run the schema in `spec/plan.md` §3 via the
-  Supabase MCP, add `NEXT_PUBLIC_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` to `.env`.
-- **GitHub repo** — `gh` CLI / Homebrew not installed; push pending (see chat).
+## Verified locally
+- GitHub: pushed to github.com/debbie-zingtree/build-day-smart-calendar-prep (SSH).
+- Supabase: project `lbivcqfyxkjktlsipdxu`, `briefs` table reachable, RLS on, real row saved.
+- Anthropic: `claude-sonnet-4-6`, samples ~595–619 output tokens (under 800 cap).
+- Dev-mode brief latency ~17s (includes Turbopack compile) — confirm < 15s on prod.
 
 ## Not yet started (later phases of the SOP)
 - Tests: prompt-builder unit, `generateBrief` integration (mock Anthropic + Supabase),
   `<MeetingForm>` validation component tests.
-- CLAUDE.md autonomous build rules + pre-commit hook + agent team.
+- Security pre-flight (§15): confirm key absent from client payload, RLS check, git-history scan.
 - Deploy: `/vercel:bootstrap`, `/vercel:env` (sync `ANTHROPIC_API_KEY`), `/vercel:deploy prod`.
 
 ## Decisions / Notes
