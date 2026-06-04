@@ -27,11 +27,29 @@ Status log for Build Day, App 3. See `PRD.md` (what/why) and `spec/plan.md` (how
 - Anthropic: `claude-sonnet-4-6`, samples ~595–619 output tokens (under 800 cap).
 - Dev-mode brief latency ~17s (includes Turbopack compile) — confirm < 15s on prod.
 
-## Not yet started (later phases of the SOP)
+## Deployed (step 8) ✅
+- Live (production alias): https://build-day-smart-calendar-prep-three.vercel.app
+- Vercel project: debbie-1979s-projects/build-day-smart-calendar-prep
+- Env vars synced: ANTHROPIC_API_KEY, NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
+  on Production + Development (+ Preview pending — CLI quirk; add via dashboard if needed).
+- Live end-to-end verified: submit → brief (~5s, well under 15s) → row saved → /briefs shows it.
+- GitHub auto-deploy NOT connected (repo under debbie-zingtree; Vercel GitHub app lacks access).
+  Deploys are via `vercel deploy --prod` from CLI. Connect in dashboard to enable push-to-deploy.
+
+## Security pre-flight (§15)
+- [x] No real secrets in git history (only npm integrity-hash false positives)
+- [x] `.env` gitignored + never committed
+- [x] No hardcoded keys in source
+- [x] RLS enabled on `briefs` (service_role policy only)
+- [x] HTTPS enforced (Vercel)
+- [x] API key server-side only (not in client bundle / payload by construction)
+- [ ] ⚠ Rate limit on serverless: in-memory limiter is PER-INSTANCE. On Vercel,
+      requests can hit different instances, so the "11th rejected" test is unreliable.
+      Move to DB/Redis-backed limiting for a real guarantee (v2).
+
+## Not yet started
 - Tests: prompt-builder unit, `generateBrief` integration (mock Anthropic + Supabase),
   `<MeetingForm>` validation component tests.
-- Security pre-flight (§15): confirm key absent from client payload, RLS check, git-history scan.
-- Deploy: `/vercel:bootstrap`, `/vercel:env` (sync `ANTHROPIC_API_KEY`), `/vercel:deploy prod`.
 
 ## Decisions / Notes
 - In-memory rate limit is per-instance and resets on restart (v1). Persistent limiting = v2.
