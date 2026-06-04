@@ -17,6 +17,9 @@ out/
 .next/
 .cache/
 coverage/
+next-env.d.ts
+*.tsbuildinfo
+.vercel
 
 # Logs
 *.log
